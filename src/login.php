@@ -2,51 +2,44 @@
 session_start();
 
 $login_error = "";
-$username = $password = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+    $input_username = $_POST['username'];
+    $input_password = $_POST['password'];
 
-    $servername = getenv('DB_HOST') ?: 'localhost';   // Replace with your database server name if different
-    $username = getenv('DB_USER') ?: 'root';          // Replace with your database username
-    $password = getenv('DB_PASS') ?: '';              // Replace with your database password
-    $dbname = getenv('DB_NAME') ?: 'car_rental_db';   // Replace with your database name
+    $servername = getenv('DB_HOST') ?: 'localhost';
+    $dbuser = getenv('DB_USER') ?: 'root';
+    $dbpass = getenv('DB_PASS') ?: '';
+    $dbname = getenv('DB_NAME') ?: 'car_rental_db';
 
-    // Create connection
-    $conn = mysqli_connect($servername, $username, $password, $dbname);
-
-    // Check connection
+    $conn = mysqli_connect($servername, $dbuser, $dbpass, $dbname);
     if (!$conn) {
         die("Connection failed: " . mysqli_connect_error());
     }
 
-    // Check if the user exists (email or phone number) in the database
-    $query = "SELECT * FROM users WHERE email='$username' OR phone='$username'";
-    $result = mysqli_query($conn, $query);
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email=? OR phone=?");
+    $stmt->bind_param("ss", $input_username, $input_username);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    if (mysqli_num_rows($result) == 1) {
-        // Fetch the user data
-        $user = mysqli_fetch_assoc($result);
-
-        // Verify the password
-        if (password_verify($password, $user['password'])) {
-            // Set session variables for the logged-in user
+    if ($result->num_rows == 1) {
+        $user = $result->fetch_assoc();
+        if (password_verify($input_password, $user['password'])) {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['email'];
             $_SESSION['loggedin'] = true;
 
-            // Redirect to car_rent_listing.php after successful login
             header("Location: index.php");
             exit();
         } else {
-            $login_error = "Invalid username or password1.";
+            $login_error = "Invalid username or password.";
         }
     } else {
         $login_error = "Invalid username or password.";
     }
 
-    mysqli_close($conn);
+    $stmt->close();
+    $conn->close();
 }
 ?>
 
