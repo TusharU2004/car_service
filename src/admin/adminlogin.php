@@ -1,3 +1,49 @@
+<?php
+session_start();
+$login_error = "";
+$username = $password = "";
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $input_username = $_POST['username'];
+    $input_password = $_POST['password'];
+
+    // Database connection
+    $servername = getenv('DB_HOST') ?: 'localhost';
+    $dbuser = getenv('DB_USER') ?: 'root';
+    $dbpass = getenv('DB_PASS') ?: '';
+    $dbname = getenv('DB_NAME') ?: 'car_rental_db';
+
+    $conn = mysqli_connect($servername, $dbuser, $dbpass, $dbname);
+
+    if (!$conn) {
+        die("Connection failed: " . mysqli_connect_error());
+    }
+
+    // Prevent SQL injection
+    $input_username = mysqli_real_escape_string($conn, $input_username);
+    $input_password = mysqli_real_escape_string($conn, $input_password);
+
+    // Check admin table
+    $query = "SELECT * FROM admin WHERE UserName='$input_username'";
+    $result = mysqli_query($conn, $query);
+
+    if (mysqli_num_rows($result) == 1) {
+        $user = mysqli_fetch_assoc($result);
+        // Assuming passwords stored as MD5
+        if (md5($input_password) === $user['Password']) {
+            $_SESSION['admin_logged_in'] = true;
+            header("Location: admindashboard.php");
+            exit();
+        } else {
+            $login_error = "Invalid username or password.";
+        }
+    } else {
+        $login_error = "Invalid username or password.";
+    }
+
+    mysqli_close($conn);
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,65 +51,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Car Rental Login Page</title>
-    <!-- CSS file link -->
     <link rel="stylesheet" href="adminlogin.css">
-    <!-- Font Awesome link for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
 <body>
-
-    <?php
-    session_start();
-    $login_error = "";
-    $username = $password = "";
-
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $username = $_POST['username'];
-        $password = $_POST['password'];
-
-        // Database connection
-        $servername = getenv('DB_HOST') ?: 'localhost';   // Replace with your database server name if different
-        $username = getenv('DB_USER') ?: 'root';          // Replace with your database username
-        $password = getenv('DB_PASS') ?: '';              // Replace with your database password
-        $dbname = getenv('DB_NAME') ?: 'car_rental_db';   // Replace with your database name
-    
-        // Create connection
-        $conn = mysqli_connect($servername, $username, $password, $dbname);
-
-        // Check connection
-        if (!$conn) {
-            die("Connection failed: " . mysqli_connect_error());
-        }
-
-        // Sanitize user input to prevent SQL injection
-        $username = mysqli_real_escape_string($conn, $username);
-        $password = mysqli_real_escape_string($conn, $password);
-
-        // Check if the user exists (Username) in the database
-        $query = "SELECT * FROM admin WHERE UserName='$username'";
-        $result = mysqli_query($conn, query: $query);
-
-        if (mysqli_num_rows($result) == 1) {
-            // Fetch the user data
-            $user = mysqli_fetch_assoc($result);
-            // Hash the entered password and compare it with the stored hash (assuming MD5)
-            if (md5($password) === $user['Password']) {
-                // Redirect to the dashboard after successful login
-                $_SESSION['admin_logged_in'] = true;
-                header("Location: admindashboard.php");
-                exit();
-            } else {
-                $login_error = "Invalid username or password.";
-            }
-        } else {
-            $login_error = "Invalid username or password.";
-        }
-
-        mysqli_close($conn);
-    }
-    ?>
-
     <div class="container">
         <div class="login-form">
             <h1>Admin Log in</h1>
@@ -73,7 +65,7 @@
                     <div class="input-wrapper">
                         <i class="fas fa-user"></i>
                         <input type="text" id="username" name="username"
-                            value="<?php echo htmlspecialchars($username); ?>" placeholder="Enter Username" required>
+                            value="<?php echo htmlspecialchars($input_username ?? ''); ?>" placeholder="Enter Username" required>
                     </div>
                 </div>
                 <div class="input-group">
@@ -90,7 +82,5 @@
             </form>
         </div>
     </div>
-
 </body>
-
 </html>
