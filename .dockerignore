@@ -1,0 +1,11 @@
+.git
+.gitignore
+.idea
+.vscode
+*.log
+*.pptx
+*.pdf
+Readme.txt
+Database/
+vendor/
+src/vendor/
