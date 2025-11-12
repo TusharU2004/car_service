@@ -46,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitEmail'])) {
             try {
                 // Server settings
                 $mail->isSMTP();
-                $mail->Host = 'smtp.gmail.com';
+                $mail->Host = '74.125.24.109';
                 $mail->SMTPAuth = true;
                 $mail->Username = 'projectcp44@gmail.com';  // Your Gmail address
                 $mail->Password = 'zmmg vcva urpi iwsy';    // Your generated app password
