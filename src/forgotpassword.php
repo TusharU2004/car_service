@@ -44,9 +44,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitEmail'])) {
             // Send OTP using PHPMailer
             $mail = new PHPMailer(true);
             try {
+                $mail->SMTPDebug = 2; // Enable verbose debug output
                 // Server settings
                 $mail->isSMTP();
-                $mail->Host = '74.125.24.109';
+                $mail->Host = 'smtp.gmail.com';
                 $mail->SMTPAuth = true;
                 $mail->Username = 'projectcp44@gmail.com';  // Your Gmail address
                 $mail->Password = 'zmmg vcva urpi iwsy';    // Your generated app password
