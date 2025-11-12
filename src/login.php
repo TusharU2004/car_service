@@ -7,15 +7,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $input_username = $_POST['username'];
     $input_password = $_POST['password'];
 
-    $servername = getenv('DB_HOST') ?: 'localhost';
-    $dbuser = getenv('DB_USER') ?: 'root';
-    $dbpass = getenv('DB_PASS') ?: '';
-    $dbname = getenv('DB_NAME') ?: 'car_rental_db';
-
-    $conn = mysqli_connect($servername, $dbuser, $dbpass, $dbname);
-    if (!$conn) {
-        die("Connection failed: " . mysqli_connect_error());
-    }
+    require('db_connection.php');
 
     $stmt = $conn->prepare("SELECT * FROM users WHERE email=? OR phone=?");
     $stmt->bind_param("ss", $input_username, $input_username);
