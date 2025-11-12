@@ -1,6 +1,6 @@
 <?php
 session_start();
-require 'vendor/autoload.php';  // Include PHPMailer
+require '../vendor/autoload.php';  // Include PHPMailer
 
 $errors = [];
 $fullname = $email = $phone = $password = $repassword = "";

@@ -1,6 +1,11 @@
 <?php
 session_start();
-require '../vendor/autoload.php';  // Include PHPMailer
+// Dynamically locate the autoload.php file
+$autoloadPath = __DIR__ . '/vendor/autoload.php'; // Path for live server
+if (!file_exists($autoloadPath)) {
+    $autoloadPath = __DIR__ . '/../vendor/autoload.php'; // Path for local server
+}
+require $autoloadPath;  // Include PHPMailer
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
