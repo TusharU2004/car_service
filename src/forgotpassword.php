@@ -1,6 +1,6 @@
 <?php
 session_start();
-require 'vendor/autoload.php';  // Include PHPMailer
+require '../vendor/autoload.php';  // Include PHPMailer
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -12,13 +12,18 @@ $email = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitEmail'])) {
     $email = $_POST['email'];
 
-    // Check if email exists in the database
-    $servername = 'localhost';
-    $username = 'root';
-    $psw = '';
-    $dbname = 'car_rental_db';
+    $servername = getenv('DB_HOST') ?: 'localhost';   // Replace with your database server name if different
+    $username = getenv('DB_USER') ?: 'root';          // Replace with your database username
+    $password = getenv('DB_PASS') ?: '';              // Replace with your database password
+    $dbname = getenv('DB_NAME') ?: 'car_rental_db';   // Replace with your database name
 
-    $conn = mysqli_connect($servername, $username, $psw, $dbname);
+    // Create connection
+    $conn = mysqli_connect($servername, $username, $password, $dbname);
+
+    // Check connection
+    if (!$conn) {
+        die("Connection failed: " . mysqli_connect_error());
+    }
 
     if ($conn) {
         $sql = "SELECT * FROM users WHERE email='$email'";
@@ -50,7 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitEmail'])) {
                 // Content
                 $mail->isHTML(true);
                 $mail->Subject = 'Password Reset OTP';
-                $mail->Body    = 'Your OTP for password reset is: <b>' . $otp . '</b>';
+                $mail->Body = 'Your OTP for password reset is: <b>' . $otp . '</b>';
                 $mail->AltBody = 'Your OTP for password reset is: ' . $otp;
 
                 $mail->send();
@@ -70,6 +75,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitEmail'])) {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -77,28 +83,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitEmail'])) {
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
+
 <body>
 
-<div class="container">
-    <div class="forgot-password-form">
-        <h1>Forgot Password</h1>
-        <form action="" method="post">
-            <div class="input-group">
-                <label for="email">Registered Email:</label>
-                <div class="input-wrapper">
-                <i class="fas fa-envelope"></i>
-                <input type="email" id="email" name="email" value="<?php echo $email; ?>" placeholder="Enter your registered email">
-                <?php if (isset($errors['email'])): ?>
-                    <span class="error-message"><?php echo $errors['email']; ?></span>
-                <?php endif; ?>
-            </div>
-            </div>
+    <div class="container">
+        <div class="forgot-password-form">
+            <h1>Forgot Password</h1>
+            <form action="" method="post">
+                <div class="input-group">
+                    <label for="email">Registered Email:</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" name="email" value="<?php echo $email; ?>"
+                            placeholder="Enter your registered email">
+                        <?php if (isset($errors['email'])): ?>
+                            <span class="error-message"><?php echo $errors['email']; ?></span>
+                        <?php endif; ?>
+                    </div>
+                </div>
 
-            <button type="submit" name="submitEmail">Send OTP</button>
-            <a href="register.php">Not a user? Register here</a>
-        </form>
+                <button type="submit" name="submitEmail">Send OTP</button>
+                <a href="register.php">Not a user? Register here</a>
+            </form>
+        </div>
     </div>
-</div>
 
 </body>
+
 </html>
