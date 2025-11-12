@@ -91,26 +91,6 @@ $conn->close();
 <!-- Navigation bar -->
 <?php include('header.php'); ?>
 
-            <!-- <div class="profile-favorites">
-                <h3>Favorites</h3>
-                <?php //if ($favoritesResult->num_rows > 0): ?>
-                    <ul class="favorites-list">
-                        <?php// while($favorite = $favoritesResult->fetch_assoc()): ?>
-                            <li>
-                                <p><strong>Car:</strong> <?php //echo htmlspecialchars($favorite['vehicle_name']); ?></p>
-                                <form action="collection_details.php" method="GET">
-                                    <input type="hidden" name="Registration_id" value="<?php //echo htmlspecialchars($favorite['vehicle_id']); ?>">
-                                    <button type="submit" class="btn btn-primary">View Details</button>
-                                </form>
-                            </li>
-                        <?php //endwhile; ?>
-                    </ul>
-                <?php //else: ?>
-                    <p>No favorites available.</p>
-                <?php //endif; ?>
-            </div> -->
-
-
 <section class="profile-section">
     <div class="profile-card">
         <div class="profile-header">
